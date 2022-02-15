@@ -143,6 +143,23 @@ public:
             }
         }
     }
+    P* get_payload(const T& key) const {
+        Node* node = root;
+        while (true) {
+            int pos = PREDICT_POS(node, key);
+            if (BITMAP_GET(node->none_bitmap, pos) == 1) {
+                return nullptr;
+            } else if (BITMAP_GET(node->child_bitmap, pos) == 0) {
+                if(node->items[pos].comp.data.key == key) {
+                    return nullptr;
+                } else {
+                    return &(node->items[pos].comp.data.value);
+                }                
+            } else {
+                node = node->items[pos].comp.child;
+            }
+        }
+    }
     void bulk_load(const V* vs, int num_keys) {
         if (num_keys == 0) {
             destroy_tree(root);
