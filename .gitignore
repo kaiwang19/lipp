@@ -1,3 +1,6 @@
 build
-reports
+reports/
+reports_bcp/
+reports_bcp2/
+reports_bcp3/
 .vscode

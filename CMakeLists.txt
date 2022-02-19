@@ -28,3 +28,6 @@ add_executable(example src/examples/example.cpp)
 add_executable(example_without_fmcd src/examples/example_without_fmcd.cpp)
 add_executable(example_bulk_load src/examples/example_bulk_load.cpp)
 add_executable(throughput src/examples/throughput.cpp)
+add_executable(throughput_lgn src/examples/throughput_lgn.cpp)
+add_executable(throughput_ycsb src/examples/throughput_ycsb.cpp)
+

@@ -143,23 +143,23 @@ public:
             }
         }
     }
-    P* get_payload(const T& key) const {
-        Node* node = root;
-        while (true) {
-            int pos = PREDICT_POS(node, key);
-            if (BITMAP_GET(node->none_bitmap, pos) == 1) {
-                return nullptr;
-            } else if (BITMAP_GET(node->child_bitmap, pos) == 0) {
-                if(node->items[pos].comp.data.key == key) {
-                    return nullptr;
-                } else {
-                    return &(node->items[pos].comp.data.value);
-                }                
-            } else {
-                node = node->items[pos].comp.child;
-            }
-        }
-    }
+    // P* get_payload(const T& key) const {
+    //     Node* node = root;
+    //     while (true) {
+    //         int pos = PREDICT_POS(node, key);
+    //         if (BITMAP_GET(node->none_bitmap, pos) == 1) {
+    //             return nullptr;
+    //         } else if (BITMAP_GET(node->child_bitmap, pos) == 0) {
+    //             if(node->items[pos].comp.data.key == key) {
+    //                 return nullptr;
+    //             } else {
+    //                 return &(node->items[pos].comp.data.value);
+    //             }                
+    //         } else {
+    //             node = node->items[pos].comp.child;
+    //         }
+    //     }
+    // }
     void bulk_load(const V* vs, int num_keys) {
         if (num_keys == 0) {
             destroy_tree(root);
@@ -233,13 +233,17 @@ public:
 
         int max_depth = 1;
         int sum_depth = 0, sum_nodes = 0;
+        int num_nodes = 1, max_size = 0, min_size = 9999999;
         while (!s.empty()) {
             Node* node = s.top(); s.pop();
             int depth = d.top(); d.pop();
+            if(node->num_items > max_size) max_size = node->num_items;
+            if(node->num_items < min_size) min_size = node->num_items;
             for (int i = 0; i < node->num_items; i ++) {
                 if (BITMAP_GET(node->child_bitmap, i) == 1) {
                     s.push(node->items[i].comp.child);
                     d.push(depth + 1);
+                    num_nodes ++;
                 } else if (BITMAP_GET(node->none_bitmap, i) != 1) {
                     max_depth = std::max(max_depth, depth);
                     sum_depth += depth;
@@ -247,7 +251,7 @@ public:
                 }
             }
         }
-
+        printf("num_nodes = %d, min_size = %d, max_size = %d\n", num_nodes, min_size, max_size);
         printf("max_depth = %d, avg_depth = %.2lf\n", max_depth, double(sum_depth) / double(sum_nodes));
     }
     void verify() const {

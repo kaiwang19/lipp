@@ -7,8 +7,8 @@
 #include "utils.h"
 
 // Modify these if running your own workload
-#define KEY_TYPE double
-#define PAYLOAD_TYPE double
+#define KEY_TYPE uint64_t
+#define PAYLOAD_TYPE big_payload
 
 using namespace std;
 
@@ -64,7 +64,9 @@ int main(int argc, char *argv[])
     for (int i = 0; i < init_num_keys; i++)
     {
         values[i].first = keys[i];
-        values[i].second = static_cast<PAYLOAD_TYPE>(gen_payload());
+        PAYLOAD_TYPE payload = big_payload();
+        payload.first_value = gen_payload();
+        values[i].second = static_cast<PAYLOAD_TYPE>(payload);
     }
 
     // Create ALEX and bulk load
@@ -85,7 +87,7 @@ int main(int argc, char *argv[])
 
     auto workload_start_time = std::chrono::high_resolution_clock::now();
     int batch_no = 0;
-    PAYLOAD_TYPE sum = 0;
+    uint64_t sum = 0;        // PAYLOAD_TYPE sum = 0;
     std::cout << std::fixed; // scientific
     std::cout << std::setprecision(4);
     while (true)
@@ -113,9 +115,9 @@ int main(int argc, char *argv[])
         {
             KEY_TYPE key = lookup_keys[j];
             PAYLOAD_TYPE payload = index.at(key);
-            if (payload)
+            if (payload.first_value)
             {
-                sum += payload;
+                sum += payload.first_value;
             }
         }
         auto lookups_end_time = std::chrono::high_resolution_clock::now();
@@ -134,7 +136,9 @@ int main(int argc, char *argv[])
         auto inserts_start_time = std::chrono::high_resolution_clock::now();
         for (; i < num_keys_after_batch; i++)
         {
-            index.insert(keys[i], static_cast<PAYLOAD_TYPE>(gen_payload()));
+            PAYLOAD_TYPE payload = big_payload();
+            payload.first_value = gen_payload();
+            index.insert(keys[i], static_cast<PAYLOAD_TYPE>(payload));
         }
         auto inserts_end_time = std::chrono::high_resolution_clock::now();
         double batch_insert_time =

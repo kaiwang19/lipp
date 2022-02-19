@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+#include "zipf.h"
 #include <string>
 #include <fstream>
 
@@ -58,3 +59,31 @@ T* get_search_keys(T array[], int num_keys, int num_searches) {
   return keys;
 }
 
+template <class T>
+T* get_search_keys_zipf(T array[], int num_keys, int num_searches) {
+  auto* keys = new T[num_searches];
+  ScrambledZipfianGenerator zipf_gen(num_keys);
+  for (int i = 0; i < num_searches; i++) {
+    int pos = zipf_gen.nextValue();
+    keys[i] = array[pos];
+    // print for debugging
+    // std::cout << "Take " << i << "th key, pos : " << pos << " array[pos] : " << array[pos] 
+    //         << std::endl;  
+  }
+  return keys;
+}
+
+template <class T>
+T* get_search_keys_random(T array[], int num_keys, int num_searches) {
+  std::mt19937_64 gen(std::random_device{}());
+  std::uniform_int_distribution<int> dis(0, num_keys - 1);
+  auto* keys = new T[num_searches];
+  for (int i = 0; i < num_searches; i++) {
+    int pos = dis(gen);
+    keys[i] = array[pos];
+    // print for debugging
+    // std::cout << "Take " << i << "th key, pos : " << pos << " array[pos] : " << array[pos] 
+    //         << std::endl;  
+  }
+  return keys;
+}
