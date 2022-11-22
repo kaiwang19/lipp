@@ -6,7 +6,7 @@
 --init_num_keys=100000000 \
 --total_num_keys=100000000 \
 --batch_size=1000 \
---print_batch_stats > ./reports_bulkload/longititude_100M.txt
+--print_batch_stats > ./reports_bulkload_no_fmcd/longititude_100M.txt
 echo "Bulkload [longitudes] Finished!"
 
 # **************************** longlat ****************************
@@ -15,7 +15,7 @@ echo "Bulkload [longitudes] Finished!"
 --init_num_keys=100000000 \
 --total_num_keys=100000000 \
 --batch_size=10000000 \
---print_batch_stats > ./reports_bulkload/longlat_100M.txt
+--print_batch_stats > ./reports_bulkload_no_fmcd/longlat_100M.txt
 echo "Bulkload [longlat] Finished!"
 
 # **************************** lognormal ****************************
@@ -24,7 +24,7 @@ echo "Bulkload [longlat] Finished!"
 --init_num_keys=100000000 \
 --total_num_keys=100000000 \
 --batch_size=10000000 \
---print_batch_stats > ./reports_bulkload/lognormal_100M.txt
+--print_batch_stats > ./reports_bulkload_no_fmcd/lognormal_100M.txt
 echo "Bulkload [lognormal] Finished!"
 
 # **************************** ycsb ****************************
@@ -33,6 +33,6 @@ echo "Bulkload [lognormal] Finished!"
 --init_num_keys=100000000 \
 --total_num_keys=100000000 \
 --batch_size=10000000 \
---print_batch_stats > ./reports_bulkload/ycsb_100M.txt
+--print_batch_stats > ./reports_bulkload_no_fmcd/ycsb_100M.txt
 echo "Bulkload [YCSB] Finished!"
 

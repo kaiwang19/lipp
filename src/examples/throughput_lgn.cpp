@@ -68,7 +68,8 @@ int main(int argc, char *argv[])
     }
 
     // Create ALEX and bulk load
-    LIPP<KEY_TYPE, PAYLOAD_TYPE> index;
+    // LIPP<KEY_TYPE, PAYLOAD_TYPE, true> index;
+    LIPP<KEY_TYPE, PAYLOAD_TYPE, true> index;
     std::sort(values, values + init_num_keys,
               [](auto const &a, auto const &b)
               { return a.first < b.first; });
@@ -201,6 +202,10 @@ int main(int argc, char *argv[])
 
     index.print_depth();
     index.print_stats();
+    std::cout << index.index_size(true, true) << std::endl;
+    std::cout << index.index_size(true, false) << std::endl;
+    std::cout << index.index_size(false, true) << std::endl;
+    std::cout << index.index_size(false, false) << std::endl;
 
     std::cout << "Cumulative stats: " << batch_no << " batches, "
               << cumulative_operations << " ops (" << cumulative_lookups

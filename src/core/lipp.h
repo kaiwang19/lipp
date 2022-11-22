@@ -19,6 +19,7 @@ typedef uint8_t bitmap_t;
 #define BITMAP_CLEAR(bitmap, pos) ((bitmap)[(pos) / BITMAP_WIDTH] &= ~bitmap_t(1 << ((pos) % BITMAP_WIDTH)))
 #define BITMAP_NEXT_1(bitmap_item) __builtin_ctz((bitmap_item))
 
+
 // runtime assert
 #define RT_ASSERT(expr) \
 { \
@@ -40,9 +41,10 @@ class LIPP
     static_assert(std::is_arithmetic<T>::value, "LIPP key type must be numeric.");
 
     inline int compute_gap_count(int size) {
+        // printf("compute_gap_count with size %i", size);
         if (size >= 1000000) return 1;
         if (size >= 100000) return 2;
-        return 5;
+        return 5; // fine-tuned number of gaps; the larger the gaps, the more memory consumed
     }
 
     struct Node;
@@ -81,6 +83,7 @@ public:
         {
             std::vector<Node*> nodes;
             for (int _ = 0; _ < 1e7; _ ++) {
+                // printf("build_tree_two in init");
                 Node* node = build_tree_two(T(0), P(), T(1), P());
                 nodes.push_back(node);
             }
@@ -143,24 +146,9 @@ public:
             }
         }
     }
-    // P* get_payload(const T& key) const {
-    //     Node* node = root;
-    //     while (true) {
-    //         int pos = PREDICT_POS(node, key);
-    //         if (BITMAP_GET(node->none_bitmap, pos) == 1) {
-    //             return nullptr;
-    //         } else if (BITMAP_GET(node->child_bitmap, pos) == 0) {
-    //             if(node->items[pos].comp.data.key == key) {
-    //                 return nullptr;
-    //             } else {
-    //                 return &(node->items[pos].comp.data.value);
-    //             }                
-    //         } else {
-    //             node = node->items[pos].comp.child;
-    //         }
-    //     }
-    // }
     void bulk_load(const V* vs, int num_keys) {
+        printf("bulk_load!\n");
+
         if (num_keys == 0) {
             destroy_tree(root);
             root = build_tree_none();
@@ -203,7 +191,7 @@ public:
         while (!s.empty()) {
             Node* node = s.top(); s.pop();
 
-            printf("Node(%p, a = %lf, b = %lf, num_items = %d)", node, node->model.a, node->model.b, node->num_items);
+            printf("Node(%p, a = %lf, b = %Lf, num_items = %d)", node, node->model.a, node->model.b, node->num_items);
             printf("[");
             int first = 1;
             for (int i = 0; i < node->num_items; i ++) {
@@ -314,7 +302,7 @@ public:
     }
 
 private:
-    struct Node;
+    // struct Node;
     struct Item
     {
         union {
@@ -381,6 +369,7 @@ private:
     /// build an empty tree
     Node* build_tree_none()
     {
+        // printf("build_tree_none!\n");
         Node* node = new_nodes(1);
         node->is_two = 0;
         node->build_size = 0;
@@ -401,6 +390,7 @@ private:
     /// build a tree with two keys
     Node* build_tree_two(T key1, P value1, T key2, P value2)
     {
+        // printf("build_tree_two!\n");
         if (key1 > key2) {
             std::swap(key1, key2);
             std::swap(value1, value2);
@@ -468,6 +458,7 @@ private:
     /// split keys into three parts at each node.
     Node* build_tree_bulk_fast(T* _keys, P* _values, int _size)
     {
+        // printf("build_tree_bulk_fast!\n");
         RT_ASSERT(_size > 1);
 
         typedef struct {
@@ -578,6 +569,7 @@ private:
     /// FMCD method.
     Node* build_tree_bulk_fmcd(T* _keys, P* _values, int _size)
     {
+        // printf("build_tree_bulk_fmcd!\n");
         RT_ASSERT(_size > 1);
 
         typedef struct {
@@ -838,6 +830,7 @@ private:
                 BITMAP_SET(node->child_bitmap, pos);
                 node->items[pos].comp.child = build_tree_two(key, value, node->items[pos].comp.data.key, node->items[pos].comp.data.value);
                 insert_to_data = 1;
+                // printf("build_tree_two in insert_to_data\n");
                 break;
             } else {
                 node = node->items[pos].comp.child;
@@ -854,6 +847,7 @@ private:
             const bool need_rebuild = node->fixed == 0 && node->size >= node->build_size * 4 && node->size >= 64 && num_insert_to_data * 10 >= num_inserts;
 
             if (need_rebuild) {
+                printf("need_rebuild!\n");
                 const int ESIZE = node->size;
                 T* keys = new T[ESIZE];
                 P* values = new P[ESIZE];
